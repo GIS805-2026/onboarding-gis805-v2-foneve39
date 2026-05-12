@@ -79,3 +79,48 @@ Séance 2
 * **Résultat :** L'IA a proposé d'illustrer la "dette technique" en montrant qu'une requête SQL sur un OLTP nécessite des jointures multiples (JOIN) et des calculs de dates à la volée, ce qui est risqué et non automatisable.
 * **Validation :** J'ai vérifié la structure de ma base de données `nexamart.duckdb` avec les commandes `DESCRIBE` pour m'assurer que les tables mentionnées (produits, magasins, géographie) existaient réellement.
 * **Justification :** Interaction cruciale pour démontrer au "Board" que le projet de modélisation en étoile n'est pas un luxe, mais une nécessité pour garantir la fiabilité des données à long terme.
+
+
+Séance 2 _____________________________________________________
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** jai ca comme erreur: [log SQLTools avec erreur DuckDB / duckdb-async / Cannot read properties of null (reading 'driver')]
+- **Résultat :** L’IA a analysé l’erreur SQLTools et identifié que le problème venait du driver DuckDB pour SQLTools, plus précisément du module Node manquant `duckdb-async` et d’une incompatibilité probable avec Node.js 22.
+- **Validation :** J’ai vérifié que le fichier `db/nexamart.duckdb` existait et que la connexion était bien configurée dans `.vscode/settings.json`. L’installation du module a échoué, confirmant le problème de compatibilité avec Node.js.
+- **Justification :** Cette interaction était nécessaire pour comprendre pourquoi SQLTools ne pouvait pas ouvrir la base DuckDB dans VS Code.
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** faudrait que j'aille quoi comme node?
+- **Résultat :** L’IA a recommandé d’utiliser Node.js 20 LTS au lieu de Node.js 22, car les dépendances natives du driver DuckDB sont plus compatibles avec Node 20.
+- **Validation :** J’ai comparé cette recommandation avec le message d’erreur npm, qui indiquait que DuckDB n’avait pas de binaire compatible avec Node 22 et essayait de compiler localement.
+- **Justification :** Cette interaction était nécessaire pour choisir une version de Node compatible avec SQLTools et DuckDB.
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** trouve moi une autre facon de lire du sql svp parce que cette facon marche pas
+- **Résultat :** L’IA a proposé de contourner SQLTools et d’utiliser DuckDB directement avec Python dans le terminal VS Code. Elle a testé l’ouverture de `db/nexamart.duckdb` et confirmé que la base fonctionnait sans SQLTools.
+- **Validation :** Une commande Python avec DuckDB a réussi à afficher la liste des tables de la base, ce qui a confirmé que la base elle-même fonctionnait correctement.
+- **Justification :** Cette interaction était nécessaire pour continuer le travail SQL malgré le problème avec l’extension SQLTools.
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** je veux voir ca dans mon terminal, comment je fais? : SELECT ROW_NUMBER() OVER (ORDER BY channel_id) AS channel_key, channel_id, channel_name, channel_type FROM raw_dim_channel WHERE channel_id IS NOT NULL;
+- **Résultat :** L’IA a fourni une commande PowerShell utilisant Python et DuckDB pour exécuter la requête SQL de `dim_channel.sql` dans le terminal.
+- **Validation :** La première commande a produit une erreur PowerShell, puis une autre tentative a montré que `fetchdf()` nécessitait `numpy`, qui n’était pas installé dans l’environnement virtuel.
+- **Justification :** Cette interaction était nécessaire pour apprendre à exécuter une requête SQL directement dans le terminal.
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** est tu capable de l'afficher sous forme de tableau dans le temrinal et non avec des virgule?
+- **Résultat :** L’IA a fourni un script PowerShell/Python qui exécute le fichier SQL et affiche le résultat sous forme de tableau aligné dans le terminal, sans utiliser `pandas` ou `numpy`.
+- **Validation :** La solution évite `fetchdf()` et utilise plutôt `fetchall()`, ce qui règle le problème de dépendance manquante.
+- **Justification :** Cette interaction était nécessaire pour rendre les résultats SQL plus lisibles dans le terminal.
+
+### 2026-05-11 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** je veux voir ca dans le terminal : SELECT ROW_NUMBER() OVER (ORDER BY customer_id) AS customer_key, customer_id, first_name, last_name, first_name || ' ' || last_name AS full_name, email_domain, city, province, loyalty_segment, CAST(join_date AS DATE) AS join_date FROM raw_dim_customer WHERE customer_id IS NOT NULL;
+- **Résultat :** L’IA a adapté la commande précédente pour lire et afficher `sql/dims/dim_customer.sql` sous forme de tableau dans le terminal, avec les 20 premières lignes.
+- **Validation :** La commande lit directement le fichier SQL actif et limite l’affichage avec `fetchmany(20)` pour éviter un résultat trop long.
+- **Justification :** Cette interaction était nécessaire pour inspecter le résultat de la dimension client sans utiliser SQLTools.
