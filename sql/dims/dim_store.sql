@@ -1,6 +1,7 @@
 -- S02 - Dimension magasin
 -- Une ligne = un magasin NexaMart.
 
+CREATE OR REPLACE TABLE dim_store AS
 SELECT
     ROW_NUMBER() OVER (ORDER BY store_id) AS store_key,
     store_id,
@@ -11,4 +12,3 @@ SELECT
     store_type
 FROM raw_dim_store
 WHERE store_id IS NOT NULL;
-

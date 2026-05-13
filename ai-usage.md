@@ -124,3 +124,50 @@ Séance 2 _____________________________________________________
 - **Résultat :** L’IA a adapté la commande précédente pour lire et afficher `sql/dims/dim_customer.sql` sous forme de tableau dans le terminal, avec les 20 premières lignes.
 - **Validation :** La commande lit directement le fichier SQL actif et limite l’affichage avec `fetchmany(20)` pour éviter un résultat trop long.
 - **Justification :** Cette interaction était nécessaire pour inspecter le résultat de la dimension client sans utiliser SQLTools.
+
+
+
+Séance 4 
+
+C’est fait: j’ai créé fact_sales.sql.
+
+Elle contient:
+
+
+le grain: une ligne = une ligne de commande (order_number + sale_line_id)
+
+les clés vers tes dimensions: date_key, customer_key, product_key, store_key, channel_key
+
+les mesures: quantity, unit_price, discount_pct, net_price, line_total, gross_amount
+
+
+J’ai lancé .\run.ps1 load: la table fact_sales est bien créée avec 1 536 lignes.
+
+J’ai aussi lancé .\run.ps1 check. Les checks S02 importants passent:
+
+text
+
+
+
+fact_sales exists: PASS
+fact_sales row count: PASS
+product_key/store_key/customer_key/channel_key not null: PASS
+grain unique: PASS
+
+
+
+Les FAIL restants sont pour des tables de séances futures (fact_returns, fact_budget, bridge_customer_segment, etc.), donc ce n’est pas grave pour S02.
+
+### 2026-05-13 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** okay go pour la table fact, c'est quoi qui est demander dedans avant que tu me la fasse svp?
+- **Résultat :** L’IA a expliqué que la table demandée était `fact_sales`, avec le grain « une ligne = une ligne de commande », identifié par `order_number + sale_line_id`. Elle a précisé les dimensions à joindre (`dim_date`, `dim_customer`, `dim_product`, `dim_store`, `dim_channel`) et les mesures attendues (`quantity`, `unit_price`, `discount_pct`, `net_price`, `line_total`, `gross_amount`).
+- **Validation :** J’ai confirmé que cette structure correspondait au guide S02 et aux checks attendus pour `fact_sales`.
+- **Justification :** Cette interaction était nécessaire pour comprendre ce que la table de faits devait contenir avant de la créer.
+
+### 2026-05-13 — Séance S02
+- **Modèle :** Codex / ChatGPT
+- **Prompt :** parfait, lets do this!
+- **Résultat :** L’IA a créé le fichier `sql/facts/fact_sales.sql`. La table utilise les dimensions déjà créées pour récupérer les clés substituts (`customer_key`, `product_key`, `store_key`, `channel_key`) et conserve `date_key`, `order_number`, `sale_line_id` et les mesures de ventes.
+- **Validation :** J’ai lancé `.\run.ps1 load`, ce qui a créé `fact_sales` avec 1 536 lignes. Ensuite, `.\run.ps1 check` a confirmé que les éléments S02 importants passaient: existence de `fact_sales`, nombre de lignes, clés étrangères non nulles et unicité du grain.
+- **Justification :** Cette interaction était nécessaire pour construire la table de faits principale du schéma en étoile demandé en S02.
