@@ -1,6 +1,6 @@
 # Rétroaction automatisée -- S01 (Diagnostic fondamental -- NexaMart kickoff)
 
-_Générée le 2026-05-15T12:39:30+00:00 -- Run `20260515T122624Z-00a5a04f`_
+_Générée le 2026-05-15T12:54:54+00:00 -- Run `20260515T125138Z-ff34aff5`_
 
 Ce document est produit par un pipeline reproductible (vérification SQL déterministe + analyse LLM du brief et de la déclaration IA). Une revue humaine précède toujours sa publication. **À ce stade expérimental, aucune note ni étiquette de niveau n'est diffusée : l'objectif est purement formatif.**
 
@@ -12,42 +12,42 @@ Ce document est produit par un pipeline reproductible (vérification SQL déterm
 
 La requête extraite de votre brief n'a pas pu être validée automatiquement. Quelques pistes constructives ci-dessous pour vous aider à la rendre exécutable et alignee avec la question posée.
 
-_Observation technique : aucun bloc SQL fencé trouvé et extraction LLM échouée_
+_Observation technique : SQL détecté mais aucune requête ne satisfait l'énoncé_
 
 
 **Pistes :**
-> Aucun bloc ```sql ... ``` détecté. Encadrez votre requête finale dans la section « Preuve » pour fiabiliser l'auto-validation.
-> Extracteur LLM : Aucune des requêtes présentes ne regroupe simultanément par category, region et quarter : il y a une requête par category+region et une autre par region seulement, mais aucune n'inclut le trimestre demandé.
+> L'extracteur LLM a inspecté vos requêtes mais aucune ne répond à la question (dimensions/colonnes attendues manquantes).
+> Extracteur LLM : Aucune des requêtes présentes ne produit les colonnes attendues (category, region, quarter) : on trouve une requête groupée par region+category et une autre par region seulement, mais aucune n'agrège par trimestre (quarter).
 
 ## 2. Rétroaction pédagogique sur le brief
 
-> Bon diagnostic business : le brief explique clairement pourquoi l'approche OLTP est insuffisante et recommande un schéma en étoile. Il manque cependant des détails techniques clés (grain, SCD) et des checks reproductibles pour mettre la solution en production.
+> Le brief identifie bien les limitations de l'OLTP et propose un passage au schéma en étoile, avec preuves SQL partielles. Il manque cependant des éléments cruciaux : grain explicite, contrôles automatisés et traçabilité git pour rendre la livraison exploitable en production.
 
 ### Observations par dimension
 
 **Model quality**
-- Observation : Le brief propose un schéma en étoile avec Fact: Sales et dimensions Product/Region/Date, mais n'énonce pas explicitement le grain (ligne de commande vs commande) et omet des détails SCD.
-- Piste d'amélioration : Préciser le grain (ex. : order_id + product_id), détailler les attributs des dimensions et justifier le pattern SCD choisi (type 1 vs type 2).
+- Observation : Le brief propose un schéma en étoile (Fact: Sales, Dimensions: Product, Region/Store, Date) mais n'énonce pas clairement le grain (ligne de commande vs commande) ni les règles SCD.
+- Piste d'amélioration : Préciser explicitement le grain (ex. 'une ligne = ligne de commande order_line') et détailler le traitement SCD attendu (Type 2 vs Type 1) pour chaque dimension.
 
 **Validation quality**
-- Observation : Le document montre des requêtes et des checks DuckDB (counts, agrégats par région) qui s'exécutent, mais sans gestion explicite des cas limites (NULLs, doublons de grain).
-- Piste d'amélioration : Ajouter des contrôles automatisés (make check) traitant NULLs, doublons de grain et vérifications de conservation (ex. somme des ventes).
+- Observation : Le document inclut des requêtes DuckDB montrant des comptes (clients, commandes, produits) et un exemple SQL d'agrégation par région et catégorie.
+- Piste d'amélioration : Ajouter des checks automatisés (NULLs sur clés dimensionnelles, doublons du grain) et gérer au moins un cas limite (valeurs NULL ou prix non-additifs) dans les requêtes de validation.
 
 **Executive justification**
-- Observation : Le brief répond au CEO en langage business: la solution actuelle est artisanale et il recommande de transformer les 24 tables en un modèle décisionnel (schéma en étoile) pour permettre l'analyse des tendances.
-- Piste d'amélioration : Préciser la décision demandée au CEO (p.ex. budget/ressources et calendrier minimal pour livrer S02) pour faciliter l'approbation immédiate.
+- Observation : La réponse exécutive dit clairement que le système actuel ne permet pas d'analyser les tendances et recommande la transformation des données brutes en modèle décisionnel.
+- Piste d'amélioration : Formuler une recommandation décisionnelle chiffrée et priorisée (ex. effort estimé, gains attendus, KPI à suivre) pour que le CEO puisse valider l'action suivante.
 
 **Process trace**
-- Observation : Le brief inclut commandes DuckDB et exemples SQL mais n'indique pas d'historique git ni de note détaillée sur l'usage d'IA ou validation humaine.
-- Piste d'amélioration : Fournir un historique git avec ≥3 commits significatifs et une note IA précisant outils utilisés et validations humaines.
+- Observation : Le brief montre des commandes DuckDB et des requêtes exécutées mais n'inclut aucune trace de commits git ni de note sur l'usage d'IA ou validation humaine.
+- Piste d'amélioration : Ajouter un journal de commits incrémentaux (≥3) avec messages descriptifs et une note IA précisant outils utilisés et contrôles humains effectués.
 
 **Reproducibility**
-- Observation : Le brief montre commandes DuckDB avec un chemin de base (db/nexamart.duckdb) mais n'inclut pas de script unique ou README garantissant une reproduction sans ajustement.
-- Piste d'amélioration : Ajouter un script 'make run' ou 'run_checks.sh' et un README décrivant exactement comment cloner, exécuter et obtenir les mêmes résultats.
+- Observation : Le document fournit des commandes DuckDB et chemins (ex. db/nexamart.duckdb) mais sans README détaillant les prérequis ou éviter les chemins codés en dur.
+- Piste d'amélioration : Inclure un README reproduisible (Clone → dépendances → commande 'make check') et éviter les chemins codés en dur pour permettre une exécution sur un clone propre.
 
 ## 3. Déclaration d'utilisation de l'IA
 
-> La déclaration décrit clairement les interactions IA, les étapes d'utilisation, et les validations humaines, et mentionne plusieurs erreurs rencontrées. Cependant quelques usages sont formulés de façon générique (ex. «Codex / ChatGPT» sans version précise), ce qui empêche d'atteindre la note maximale.
+> La déclaration couvre les interactions IA, les étapes où elles ont été utilisées, les vérifications humaines et plusieurs erreurs rencontrées. Certaines mentions d'outils sont un peu génériques (ex. « Codex / ChatGPT » sans version précise), d'où une note de 3 plutôt que 4.
 
 **Sujets bien couverts dans votre déclaration :**
 
@@ -64,11 +64,11 @@ _Observation technique : aucun bloc SQL fencé trouvé et extraction LLM échou�
 
 ## 5. Traçabilité
 
-- **Run ID :** `20260515T122624Z-00a5a04f`
+- **Run ID :** `20260515T125138Z-ff34aff5`
 - **Devoir :** `S01`
 - **Étudiant·e :** `foneve39`
 - **Commit analysé :** `7808dd1`
-- **Audit (côté instructeur) :** `tools/instructor/feedback_pipeline/audit/20260515T122624Z-00a5a04f/foneve39/`
+- **Audit (côté instructeur) :** `tools/instructor/feedback_pipeline/audit/20260515T125138Z-ff34aff5/foneve39/`
 - **Prompts (SHA-256) :**
   - `sql_extractor_system` : `90ee9e277de7a27f...`
   - `rubric_grader_system` : `505f32d1d8319d66...`
